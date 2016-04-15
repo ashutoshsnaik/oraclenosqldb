@@ -1,0 +1,12 @@
+#Setup scripts
+
+#Register Elastic Search
+plan register-es -clustername elasticsearch -host localhost -port 9300
+
+#Create Dicom Table and DicomIndex
+execute 'CREATE TABLE dicom (id INTEGER,lobKey STRING,dicomFileName STRING,dicomMetadata STRING, SOPInstanceUID STRING, PatientID STRING, StudyDescription STRING, PatientName STRING, ImageType STRING, InstanceCreationDate STRING, InstanceCreationTime STRING, StudyDate STRING, AccessionNumber STRING, BitsAllocated STRING, BitsScored STRING, Columns STRING, FileMetaInformationGroupLength STRING, FileMetaInformationVersion STRING, FrameOfReferenceUID STRING, HighBit STRING, ImageOrientationPatient STRING, ImagePositionPatient STRING, ImplementationClassUID STRING, InstanceNumber STRING, InstitutionAddress STRING, InstitutionName STRING, Manufacturer STRING, MediaStorageSOPClassUID STRING, MediaStorageSOPInstanceUID STRING, Modality STRING, PatientBirthDate STRING, PatientBirthTime STRING, PatientPosition STRING, PatientSex STRING, PhotometricInterpretation STRING, PixelData STRING, PixelRepresentation STRING, PixelSpacing STRING, PositionReferenceIndicator STRING, ReferringPhysicianName STRING, RescaleIntercept STRING, RescaleSlope STRING, Rows STRING, SamplesPerPixel STRING, SeriesDescription STRING, SeriesInstanceUID STRING, SeriesNumber STRING, SliceThickness STRING, SOPClassUID STRING, SourceApplicationEntityTitle STRING, StudyID STRING, StudyInstanceUID STRING, StudyTime STRING, Age INTEGER, PRIMARY KEY (id))'
+
+execute 'CREATE FULLTEXT INDEX DicomIndex ON dicom (SOPInstanceUID,PatientID,StudyDescription,PatientName,ImageType,InstanceCreationDate,InstanceCreationTime,StudyDate,AccessionNumber,BitsAllocated,BitsScored,Columns,FileMetaInformationGroupLength,FileMetaInformationVersion,FrameOfReferenceUID,HighBit,ImageOrientationPatient,ImagePositionPatient,ImplementationClassUID,InstanceNumber,InstitutionAddress,InstitutionName,Manufacturer,MediaStorageSOPClassUID,MediaStorageSOPInstanceUID,Modality,PatientBirthDate,PatientBirthTime,PatientPosition,PatientSex,PhotometricInterpretation,PixelData,PixelRepresentation,PixelSpacing,PositionReferenceIndicator,ReferringPhysicianName,RescaleIntercept,RescaleSlope,Rows,SamplesPerPixel,SeriesDescription,SeriesInstanceUID,SeriesNumber,SliceThickness,SOPClassUID,SourceApplicationEntityTitle,StudyID,StudyInstanceUID,StudyTime,Age)'
+
+#To test if the Index has been created
+curl -XGET 'localhost:9200/ondb.mystore.dicom.metaindex/_search\?pretty'

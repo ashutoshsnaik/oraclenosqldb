@@ -1,0 +1,263 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <style type="text/css">
+    table.gridtable {
+	font-family: verdana,arial,sans-serif;
+	font-size:15px;
+	color:#333333;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+	}
+    table.gridtable th {
+	border-width: 1px;
+	padding: 15px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+	font-weight: bold;    
+    	padding: 2px;
+	}
+    table.gridtable td {
+	border-width: 1px;
+	padding: 12px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+	}
+    #bContainer	{
+	margin-top:10px;
+	}
+
+    #tContainer {
+	margin-top:10px;
+	}
+
+    #tContainer {
+	margin-top:10px;
+	}
+    input[type=text]{
+        padding: 5px; 
+    }
+    #parentdiv {
+	    width:100%;
+	    height:100%;
+	    border:1px;
+	    margin-right:10px;
+	    float:left;
+	}
+	.child_div_1{
+	    float:left;
+	    margin-right:5px;
+	} 
+</style>
+</head>
+
+<body>  
+<div id="bContainer">
+<button id="ajax">Fetch Data</button>
+
+<label id="queryLabel">Query String:</label>
+<textarea id="query" name="query" rows="2" cols="40" onChange="getQuery()"></textarea>
+</div>
+<script type="text/javascript">
+	function getQuery(){
+		var q = query.value;
+		//alert("Value Entered :"+q);
+		//alert("Value Entered after Stringify:"+q);
+		var url = "http://localhost:8080/DicomRest/rest/es/getRecords";
+		$.ajax({ 
+		     	 url: url,
+	             type: "POST",
+		     	 contentType: 'application/json', 
+		     	 data: q,
+	    	     dataType: "json",
+	             success: function(data){        
+	    	        //alert(data);
+					drawDataTable(data);
+	    		}
+	    });
+	}
+
+    $('#json').click(function(){ 
+         $.getJSON("http://localhost:8080/DicomRest/rest/es/listAttributes",
+         function(data) {
+            drawTable(data);
+          });   
+    });
+
+    $('#ajax').click(function(){ 
+       // alert('ajax');
+        var q1 = query.value;
+        var name = patientName.value;
+        //var age = patientAge.value;
+        var des = studyDes.value;
+        var mod = modality.value;
+        var greaterThan = gte.value;
+        var lesserThan = lte.value;
+        var nqt = document.getElementById("nameQueryType");
+        var aqt = document.getElementById("ageQueryType");
+        var sqt = document.getElementById("desQueryType");
+        var mqt = document.getElementById("modQueryType");
+        var ni = nqt.selectedIndex;
+        var ai = aqt.selectedIndex;
+        var si = sqt.selectedIndex;
+        var mi = mqt.selectedIndex;
+        var nameType = nqt.options[ni].text;
+        var ageType = aqt.options[ai].text;
+        var desType = sqt.options[si].text;
+        var modType = mqt.options[mi].text;
+        
+        var queryString = "{\"PatientName\":{\""+nameType+"\":\""+name+"\"},\"Age\":{\""+ageType+"\":{\"gte\":\""+greaterThan+"\",\"lte\":\""+lesserThan+"\"}},\"StudyDescription\":{\""+desType+"\":\""+des+"\"},\"Modality\":{\""+modType+"\":\""+mod+"\"}}";
+		//alert(queryString);
+		if (name == '' && des == '' && mod == '' && greaterThan == '' && lesserThan == ''){
+         $.ajax({ 
+             type: "GET",
+             dataType: "json",
+             url: "http://localhost:8080/DicomRest/rest/es/fetchRecords",
+             success: function(data){        
+                //alert(data);
+		drawDataTable(data);
+             }
+         });
+		}else{
+		//alert("Need to call Build Query");
+		var url = "http://localhost:8080/DicomRest/rest/es/buildQuery";
+		$.ajax({ 
+		     	 url: url,
+	             type: "POST",
+		     	 contentType: 'application/json', 
+		     	 data: queryString,
+	    	     dataType: "json",
+	             success: function(data){        
+	    	        //alert(data);
+					drawDataTable(data);
+	    		}
+	    });
+	}	
+    });
+
+	function drawTable(data) {
+	//alert("Draw Table");
+	    for (var i = 0; i < data.length; i++) {
+	//alert("Draw Table 1 :"+data[i]);
+	    var row = $("<tr></tr>")
+	    $("#display").append(row); 
+            row.append($("<td>" + data[i] + "</td>"));
+	    }
+        }
+
+	function drawDataTable(data) {
+		//alert("Draw Table");
+		//delete all table rows
+		var tableHeaderRowCount = 1;
+		var table = document.getElementById('displayData');
+		var rowCount = table.rows.length;
+		for (var i = tableHeaderRowCount; i < rowCount; i++) {
+			//alert("deleting table rows")
+	    	table.deleteRow(tableHeaderRowCount);
+		}
+	    for (var i = 0; i < data.length; i++) {
+			drawRow(data[i]);
+		}
+    }
+	
+	function getFile(rowData){
+		alert(rowData.pkey);
+	}
+
+	function drawRow(rowData) {
+		var row = $('<tr></tr>').attr('id','rowID');
+	    //var row = $("<tr url='www.google.com'></tr>")
+	    $("#displayData").append(row); //this will append tr element to table... keep its reference for a while since we will add cels into it
+	    row.append($("<td><div><button class='editRow'>Get Image</button></div></td>"));
+	    row.append($("<td class='pkey'>" + rowData.pkey + "</td>"));
+	    row.append($("<td>" + rowData.imageType + "</td>"));
+	    row.append($("<td>" + rowData.instanceCreationTime + "</td>"));
+	    row.append($("<td>" + rowData.instanceCreationDate + "</td>"));
+	    row.append($("<td>" + rowData.patientID + "</td>"));
+	    row.append($("<td>" + rowData.patientName + "</td>"));
+	    row.append($("<td>" + rowData.studyDate + "</td>"));
+	    row.append($("<td>" + rowData.studyDescription + "</td>"));
+	}
+
+$("body").on("click",".editRow",function(ev){
+	var tr = $(this).closest('tr');
+        var id = tr.find('.pkey').text();
+   //alert("Primary Key :"+id);
+   $.ajax({ 
+       type: "GET",
+       dataType: "json",
+       url: "http://localhost:8080/DicomRest/rest/es/getJpeg/"+id,
+       success: function(data){        
+          //alert("done :"+data);
+		$("#target").attr("src","data:image/jpg;base64," + data);
+	   }
+   });
+});
+
+</script>
+<div>
+<table>
+<tr>
+	<td>
+	<select id="nameQueryType" name="nameQueryType">
+		<option value="wildc">WildCard</option>
+		<option value="term">Term</option>
+		<option value="match">Match</option>
+	</select>
+	</td>
+	<td>Patient Name:</td><td><input type="text" id="patientName" ></td>
+	<td>
+	<select id="ageQueryType" name="ageQueryType">
+		<option value="range">Range</option>
+	</select>
+	</td>
+	<td>Patient Age:</td>
+	<td><input type="text" id="gte" placeholder="Age Greater Than"></td>
+	<td><input type="text" id="lte" placeholder="Age Less Than"></td>
+</tr>
+<tr>
+	<td>
+	<select id="desQueryType" name="desQueryType">
+		<option value="wildc">WildCard</option>
+		<option value="term">Term</option>
+		<option value="match">Match</option>
+	</select>
+	</td>
+	<td>Study Description:</td><td><input type="text" id="studyDes" ></td>
+	<td>
+	<select id="modQueryType" name="modQueryType">
+		<option value="wildc">WildCard</option>
+		<option value="term">Term</option>
+		<option value="match">Match</option>
+	</select>
+	</td>
+	<td>Modality:</td><td><input type="text" id="modality" ></td>
+</tr>
+</table>
+</div>
+<div id="parentDiv">
+<div id="dContainer"  class ='child_div_1'>
+<table class="gridtable" id="displayData">
+ <tr>
+	<th>Dicom Image</th>
+	<th>Key</th>
+	<th>Image Type</th>
+	<th>Instance Creation Time</th>
+	<th>Instance Creation Date</th>
+	<th>Patient ID</th>
+	<th>Patient Name</th>
+	<th>Study Date</th>
+	<th>Study Description</th>
+ </tr>
+</table>
+</div>
+<div id="image"  class ='child_div_2'>
+	<img id="target" src="" />
+</div>
+</div>
+</body>
+
+</html>

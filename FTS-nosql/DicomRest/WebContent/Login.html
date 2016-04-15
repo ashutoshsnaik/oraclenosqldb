@@ -1,0 +1,44 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Login</title>
+<link href="style4.css" rel="stylesheet"/>
+</head>
+<script type="text/javascript">
+// Below function Executes on click of login button.
+function validate(){
+	var username = document.getElementById("username").value;
+	var password = document.getElementById("password").value;
+	
+	if ( (username == "admin" && password == "admin")){
+		//alert ("Login successfully");
+		window.location = "DicomAdmin.html"; // Redirecting to other page.
+		return false;
+	}
+	if ( username == "dicom" && password == "dicom"){
+		//alert ("Login successfully");
+		window.location = "DicomHome.html"; // Redirecting to other page.
+		return false;
+	}
+	else{
+		if (username == "" || password == ""){
+			alert("Please enter a valid username");
+		}		
+	}
+}
+
+
+</script>
+<body>
+<div id="login">
+<h1><strong>Welcome.</strong> Please login.</h1>
+<form id="form_id" method="post" name="myform" onSubmit="return validate();">
+<fieldset>
+<p><input type="text" id="username" required value="" ></p>
+<p><input type="password" id="password" required value="" ></p>
+<p><input type="submit" value="Login" id="submit"/></p>
+</fieldset>
+</form>
+</div> <!-- end login -->
+</body>
+</html>

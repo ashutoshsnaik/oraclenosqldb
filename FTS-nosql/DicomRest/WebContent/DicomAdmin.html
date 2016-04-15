@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Dicom Admin</title>
+    <link href="style4.css" rel="stylesheet"/>
+</head>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<style type="text/css">
+	html, body {
+	    height:100%;
+	}
+    
+</style>
+<script type="text/javascript">
+	function getImagesPath(){
+	$.ajax({ 
+             type: "GET",
+             dataType: "json",
+             url: "http://localhost:8080/DicomRest/rest/dicom/load",
+             success: function(data){        
+                //alert(data.no + " : and : "+data.name );
+		drawComponent(data);
+             }
+         });
+	}
+
+	function drawComponent(data){
+	//alert("here");
+		var divId = document.getElementById("loadImages");
+		var labelElement = document.createElement("label");
+	//alert("here 1");
+		//lebelElement.setAttribute('text','Dicom Images loaded from');
+		//labelElement.type = 'text';
+		labelElement.innerHTML = data.no + ' : Dicom Images will be loaded from : '+data.name;		
+		labelElement.style.fontWeight = 'bold';
+		divId.appendChild(labelElement);
+	//alert("here 2");
+		var buttonElement = document.createElement("input");
+		buttonElement.type = 'button';
+		buttonElement.value = 'Load';		
+		buttonElement.onclick = Hi;
+		divId.appendChild(buttonElement);
+	//alert("here 3");
+	}
+
+	function Hi(){
+		//alert("HI");
+	$.ajax({ 
+             type: "GET",
+             dataType: "json",
+             url: "http://localhost:8080/DicomRest/rest/dicom/loadDicom",
+             success: function(){        
+                alert("Successfully Loaded Images");
+             }
+         });
+	}
+</script>
+<body onload="javascript:getImagesPath()">
+<nav>
+    <ul>
+            <li><a href="DicomAdmin.html">Search</a></li>
+            <li><a href="Login.html">Logout</a></li>
+    </ul>
+</nav>
+
+<div id="loadImages">
+
+</div>
+<iframe src="Dicom.html" id="container" width="100%" height="100%">
+ <p>iframes are not supported by your browser.</p>
+</iframe>
+
+</body>
+</html>
